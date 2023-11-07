@@ -1,0 +1,171 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Product
+{
+	int id;
+	char* name;
+	char* description;
+	double price;
+	double* priceHistory = nullptr;
+
+	void set_priceHistory(const double* priceHistory) {
+		this->priceHistory = new double[sizeof priceHistory + 1];
+		if (priceHistory) {
+			memcpy(this->priceHistory, priceHistory, sizeof priceHistory);
+			this->priceHistory[sizeof priceHistory] = this->price;
+		}
+		else {
+			this->priceHistory = new double[1];
+			this->priceHistory[0] = this->price;
+		}
+	}
+
+public:
+	// all setters
+	void set_id(int new_id) {
+		if (new_id)
+			this->id = new_id;
+		else
+			throw exception("Invalid ID");
+	}
+
+	void set_name(const char* new_name) {
+		if (new_name) {
+			this->name = new char[strlen(new_name) + 1];
+			strcpy_s(this->name, strlen(new_name) + 1, new_name);
+		}
+		else
+			throw exception("Invalid Name");
+	}
+
+	void set_description(const char* new_description) {
+		if (new_description) {
+			this->description = new char[strlen(new_description) + 1];
+			strcpy_s(this->description, strlen(new_description) + 1, new_description);
+		}
+		else
+			throw exception("Invalid Description");
+	}
+
+	void set_price(double new_price) {
+		if (new_price >= 0.0)
+			this->price = new_price;
+		else
+			throw exception("Invalid Price");
+
+		if (this->priceHistory) {
+			double* temp = this->priceHistory;
+			this->priceHistory = new double[sizeof priceHistory + 1];
+			memcpy(this->priceHistory, priceHistory, sizeof priceHistory);
+			this->priceHistory[sizeof priceHistory] = this->price;
+			delete[] temp;
+		}
+	}
+	// all getters
+	int get_id() {
+		return this->id;
+	}
+
+	char* get_name() {
+		char* result = new char[strlen(this->name) + 1];
+		strcpy_s(result, strlen(this->name) + 1, this->name);
+
+		return result;
+	}
+
+	char* get_description() {
+		char* result = new char[strlen(this->description) + 1];
+		strcpy_s(result, strlen(this->description) + 1, this->description);
+
+		return result;
+	}
+
+	double get_price() {
+		return this->price;
+	}
+
+	double* get_priceHistory() {
+		double* result = new double(sizeof this->priceHistory);
+		memcpy(result, this->priceHistory, sizeof this->priceHistory);
+		
+		return result;
+	}
+
+	// member functions
+	double getPriceAverage()
+	{
+		double average = 0;
+		int n = sizeof this->priceHistory;
+		if (this->priceHistory) {
+			for (int i = 0; i < n; i++)
+				average += this->priceHistory[i];
+			average /= (double)n;
+		}
+		return average;
+	}
+
+	// constructor, destructor, copy-constructor
+	Product() { }
+
+	Product(int id, const char* name, const char* description, double price, const double* priceHistory)
+	{
+		set_id(id);
+
+		set_name(name);
+
+		set_description(description);
+
+		set_price(price);
+
+		set_priceHistory(priceHistory);
+	}
+
+	Product(const Product& new_product) :
+		Product(new_product.id, new_product.name, new_product.description, new_product.price, new_product.priceHistory)
+	{
+
+	}
+
+	~Product()
+	{
+		delete[] name;
+		delete[] description;
+		delete[] priceHistory;
+	}
+};
+
+int main() {
+	int id;
+	char name[100];
+	char desc[100];
+	double price;
+	double priceHistory[] = { 10.2, 11.1, 12.3, 8.3, 9.99, 10.49, 11.29 };
+
+	Product var;
+
+	cout << "id: ";
+	cin >> id;
+	var.set_id(id);
+
+	cout << "name: ";
+	cin >> name;
+	var.set_name(name);
+
+	cout << "description: ";
+	cin >> desc;
+	var.set_name(desc);
+
+	cout << "price: ";
+	cin >> price;
+	var.set_price(price);
+
+	cout
+		<< "id: " << var.get_id()
+		<< "name: " << var.get_name()
+		<< "description: " << var.get_description()
+		<< "price: " << var.get_price()
+		<< "price avg.: " << var.getPriceAverage()
+		;
+}
